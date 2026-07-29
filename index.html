@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>음식 취향 설문지</title>
+    <style>
+      :root {
+        --bg: #fffaf4;
+        --card: #ffffff;
+        --accent: #ff7a59;
+        --accent-2: #ffb347;
+        --text: #2f2a24;
+        --muted: #6b625b;
+        --border: #f1e2d3;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+        background: linear-gradient(135deg, var(--bg), #fff3e4);
+        color: var(--text);
+      }
+
+      .wrap {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 32px 20px 64px;
+      }
+
+      .hero {
+        background: linear-gradient(120deg, rgba(255,122,89,0.95), rgba(255,179,71,0.9));
+        color: white;
+        border-radius: 28px;
+        padding: 32px;
+        box-shadow: 0 18px 40px rgba(255,122,89,0.22);
+      }
+
+      .badge {
+        display: inline-block;
+        background: rgba(255,255,255,0.2);
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        margin-bottom: 12px;
+      }
+
+      .hero h1 {
+        font-size: 34px;
+        margin: 0 0 12px;
+        line-height: 1.2;
+      }
+
+      .hero p {
+        margin: 0;
+        font-size: 16px;
+        line-height: 1.6;
+        opacity: 0.95;
+      }
+
+      .survey-list {
+        margin-top: 24px;
+        counter-reset: survey-step;
+      }
+
+      .survey-card {
+        display: none;
+        position: relative;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: 0 10px 24px rgba(0,0,0,0.04);
+        counter-increment: survey-step;
+      }
+
+      .survey-card.is-active {
+        display: block;
+        animation: card-in 0.35s ease;
+      }
+
+      @keyframes card-in {
+        from {
+          opacity: 0;
+          transform: translateX(18px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      .survey-card h2 {
+        margin: 0 0 8px;
+        font-size: 22px;
+      }
+
+      .step-label {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin-bottom: 10px;
+        color: var(--accent);
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+      }
+
+      .step-label::before {
+        content: counter(survey-step);
+        display: grid;
+        place-items: center;
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        background: #fff0e7;
+      }
+
+      .survey-bridge {
+        display: none;
+        grid-template-columns: 32px 1fr;
+        align-items: center;
+        gap: 12px;
+        min-height: 82px;
+        padding: 10px 24px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.55;
+      }
+
+      .bridge-line {
+        position: relative;
+        width: 2px;
+        height: 62px;
+        margin: 0 auto;
+        background: linear-gradient(var(--accent), var(--accent-2));
+      }
+
+      .bridge-line::after {
+        content: "⌄";
+        position: absolute;
+        left: 50%;
+        bottom: -8px;
+        transform: translateX(-50%);
+        color: var(--accent);
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      .survey-bridge strong {
+        color: var(--text);
+      }
+
+      .survey-card .desc {
+        color: var(--muted);
+        margin: 0 0 18px;
+        line-height: 1.6;
+      }
+
+      .option-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .option-card {
+        position: relative;
+        display: block;
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 14px;
+        cursor: pointer;
+        transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+        background: #fffdfb;
+      }
+
+      .option-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(255,122,89,0.12);
+      }
+
+      .option-card input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .option-card input:checked + .inner {
+        border-color: var(--accent);
+        box-shadow: inset 0 0 0 2px rgba(255,122,89,0.15);
+        background: #fff4eb;
+      }
+
+      .inner {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        border-radius: 14px;
+        min-height: 110px;
+      }
+
+      .emoji {
+        font-size: 24px;
+      }
+
+      .option-title {
+        font-weight: 700;
+      }
+
+      .option-text {
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+
+      .input-area {
+        margin-top: 14px;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 92px;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 12px 14px;
+        font-size: 14px;
+        resize: vertical;
+        outline: none;
+      }
+
+      textarea:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(255,122,89,0.12);
+      }
+
+      .footer-note {
+        margin-top: 24px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .btn-row {
+        margin-top: 22px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .submit-btn,
+      .nav-btn {
+        border: none;
+        border-radius: 999px;
+        padding: 12px 18px;
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+        color: white;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .nav-btn.secondary {
+        background: white;
+        color: var(--muted);
+        border: 1px solid var(--border);
+      }
+
+      #nextBtn,
+      #submitBtn {
+        margin-left: auto;
+      }
+
+      .nav-btn[hidden],
+      .submit-btn[hidden] {
+        display: none;
+      }
+
+      .progress-wrap {
+        margin: 24px 4px 14px;
+      }
+
+      .progress-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 9px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .progress-track {
+        height: 7px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: var(--border);
+      }
+
+      .progress-bar {
+        width: 33.333%;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+        transition: width 0.3s ease;
+      }
+
+      @media (max-width: 700px) {
+        .hero {
+          padding: 24px;
+        }
+
+        .hero h1 {
+          font-size: 26px;
+        }
+
+        .option-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .survey-bridge {
+          padding-inline: 16px;
+        }
+
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <section class="hero">
+        <div class="badge">Food Mood Survey</div>
+        <h1>지금 나에게 필요한 음식은 무엇일까요?</h1>
+        <p>
+          메뉴를 고르는 기준에는 지금의 기분, 놓인 상황, 오래된 기억이 함께 작용합니다.
+          세 가지 질문을 따라가며 오늘의 니즈부터 나만의 취향까지 차근차근 발견해 보세요.
+        </p>
+      </section>
+
+      <form class="survey-list">
+        <div class="progress-wrap" aria-label="설문 진행률">
+          <div class="progress-info">
+            <span id="progressLabel">질문 1 / 3</span>
+            <span id="progressPercent">33%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+        </div>
+
+        <section class="survey-card is-active">
+          <div class="step-label">지금의 니즈</div>
+          <h2>오늘은 어떤 한 끼가 필요한가요?</h2>
+          <p class="desc">지금의 기분과 몸 상태에 가장 잘 맞는 음식을 골라주세요.</p>
+          <div class="option-grid">
+            <label class="option-card">
+              <input type="radio" name="mood" value="comfort" />
+              <span class="inner">
+                <span class="emoji">🍜</span>
+                <span class="option-title">따뜻한 국물</span>
+                <span class="option-text">잔잔하게 위로받고 싶은 날</span>
+              </span>
+            </label>
+            <label class="option-card">
+              <input type="radio" name="mood" value="crunch" />
+              <span class="inner">
+                <span class="emoji">🍟</span>
+                <span class="option-title">바삭한 음식</span>
+                <span class="option-text">활기찬 에너지가 필요할 때</span>
+              </span>
+            </label>
+            <label class="option-card">
+              <input type="radio" name="mood" value="sweet" />
+              <span class="inner">
+                <span class="emoji">🍰</span>
+                <span class="option-title">달콤한 디저트</span>
+                <span class="option-text">기분을 환하게 바꾸고 싶은 순간</span>
+              </span>
+            </label>
+            <label class="option-card">
+              <input type="radio" name="mood" value="fresh" />
+              <span class="inner">
+                <span class="emoji">🥗</span>
+                <span class="option-title">신선한 한 끼</span>
+                <span class="option-text">가볍고 정리된 느낌이 필요한 날</span>
+              </span>
+            </label>
+          </div>
+          <div class="input-area">
+            <textarea placeholder="한 줄로 이유를 적어보세요. 예: 비 오는 날엔 더 생각나네요."></textarea>
+          </div>
+        </section>
+
+        <div class="survey-bridge" aria-hidden="true">
+          <span class="bridge-line"></span>
+          <p><strong>지금 원하는 맛을 찾았다면,</strong><br />이번에는 날씨와 상황이 선택을 어떻게 바꾸는지 살펴볼게요.</p>
+        </div>
+
+        <section class="survey-card">
+          <div class="step-label">상황 속 취향</div>
+          <h2>비 오는 날에는 무엇이 당기나요?</h2>
+          <p class="desc">비가 내리면 떠오르는 음식이 있나요? 날씨와 함께 생각나는 메뉴를 골라주세요.</p>
+          <div class="option-grid">
+            <label class="option-card">
+              <input type="radio" name="rain" value="ramen" />
+              <span class="inner">
+                <span class="emoji">🍜</span>
+                <span class="option-title">라면</span>
+                <span class="option-text">따뜻하고 즉시 만족되는 편안함</span>
+              </span>
+            </label>
+            <label class="option-card">
+              <input type="radio" name="rain" value="soup" />
+              <span class="inner">
+                <span class="emoji">🥣</span>
+                <span class="option-title">순두부찌개</span>
+                <span class="option-text">비 오는 날엔 더 잘 어울리는 진한 맛</span>
+              </span>
+            </label>
+            <label class="option-card">
+              <input type="radio" name="rain" value="toast" />
+              <span class="inner">
+                <span class="emoji">🥪</span>
+                <span class="option-title">토스트와 커피</span>
+                <span class="option-text">조용한 오후를 채우는 조합</span>
+              </span>
+            </label>
+            <label class="option-card">
+              <input type="radio" name="rain" value="hotpot" />
+              <span class="inner">
+                <span class="emoji">🍲</span>
+                <span class="option-title">전골</span>
+                <span class="option-text">따뜻한 공기와 함께 느끼는 포근함</span>
+              </span>
+            </label>
+          </div>
+          <div class="input-area">
+            <textarea placeholder="비 오는 날의 음식 경험을 짧게 적어주세요."></textarea>
+          </div>
+        </section>
+
+        <div class="survey-bridge" aria-hidden="true">
+          <span class="bridge-line"></span>
+          <p><strong>상황에 따라 달라지는 선택 너머에는</strong><br />언제나 다시 찾게 되는 나만의 음식이 있어요.</p>
+        </div>
+
+        <section class="survey-card">
+          <div class="step-label">변하지 않는 취향</div>
+          <h2>결국 다시 찾게 되는 음식은 무엇인가요?</h2>
+          <p class="desc">추억과 위로가 담겨 있어 오래도록 좋아해 온 나만의 소울 푸드를 골라주세요.</p>
+          <div class="option-grid">
+            <label class="option-card">
+              <input type="radio" name="soul" value="kimbap" />
+              <span class="inner">
+                <span class="emoji">🥙</span>
+                <span class="option-title">김밥</span>
+                <span class="option-text">어릴 때부터 익숙한 편안함</span>
+              </span>
+            </label>
+            <label class="option-card">
+              <input type="radio" name="soul" value="tteokbokki" />
+              <span class="inner">
+                <span class="emoji">🌶️</span>
+                <span class="option-title">떡볶이</span>
+                <span class="option-text">친구와 함께 먹으면 더 특별한 맛</span>
+              </span>
+            </label>
+            <label class="option-card">
+              <input type="radio" name="soul" value="sushi" />
+              <span class="inner">
+                <span class="emoji">🍣</span>
+                <span class="option-title">초밥</span>
+                <span class="option-text">깔끔함과 여유를 동시에 주는 선택</span>
+              </span>
+            </label>
+            <label class="option-card">
+              <input type="radio" name="soul" value="steak" />
+              <span class="inner">
+                <span class="emoji">🥩</span>
+                <span class="option-title">스테이크</span>
+                <span class="option-text">특별한 날에 더 선호하는 만족감</span>
+              </span>
+            </label>
+          </div>
+          <div class="input-area">
+            <textarea placeholder="당신의 소울 푸드와 이유를 적어주세요."></textarea>
+          </div>
+        </section>
+
+        <!--
+        <div class="topic-transition">좋아하는 음식에서, 앞으로 이루고 싶은 삶으로</div>
+
+        <header class="topic-divider">
+          <span class="topic-number">02 · BUCKET LIST</span>
+          <h2>바라는 것으로 보는 미래의 나</h2>
+          <p>가까운 목표부터 평생의 꿈까지, 내가 향하고 싶은 방향을 떠올려 봅니다.</p>
+        </header>
+        <section class="survey-card">
+          <div class="question-list">
+            <div class="question-item">
+              <label for="bucket-2026">2026년에 꼭 이루고 싶은 것은 무엇인가요?</label>
+              <textarea id="bucket-2026" name="bucket_2026" placeholder="올해 안에 해보고 싶은 일을 적어주세요."></textarea>
+            </div>
+            <div class="question-item">
+              <label for="bucket-life">평생 한 번은 꼭 해보고 싶은 것은 무엇인가요?</label>
+              <textarea id="bucket-life" name="bucket_life" placeholder="크기와 현실성에 상관없이 자유롭게 적어주세요."></textarea>
+            </div>
+            <div class="question-item">
+              <label for="bucket-last">작년의 버킷리스트 중 기억에 남는 것은 무엇인가요?</label>
+              <textarea id="bucket-last" name="bucket_last" placeholder="이룬 일이나 아직 남아 있는 일을 적어주세요."></textarea>
+            </div>
+          </div>
+        </section>
+
+        <div class="topic-transition">꿈꾸는 삶에는, 마음을 움직인 장면들이 있습니다</div>
+
+        <header class="topic-divider">
+          <span class="topic-number">03 · MOVIE</span>
+          <h2>영화로 보는 감정의 취향</h2>
+          <p>웃고 울었던 장면과 앞으로 만나고 싶은 이야기를 통해 감정의 결을 살펴봅니다.</p>
+        </header>
+        <section class="survey-card">
+          <div class="question-list">
+            <div class="question-item">
+              <label for="movie-funny">가장 재미있게 본 웃긴 영화는 무엇인가요?</label>
+              <textarea id="movie-funny" name="movie_funny" placeholder="영화 제목과 기억에 남는 이유를 적어주세요."></textarea>
+            </div>
+            <div class="question-item">
+              <label for="movie-sad">마음이 오래 머물렀던 슬픈 영화는 무엇인가요?</label>
+              <textarea id="movie-sad" name="movie_sad" placeholder="어떤 감정이 남았는지도 함께 적어주세요."></textarea>
+            </div>
+            <div class="question-item">
+              <label for="movie-wish">지금 가장 보고 싶은 영화는 무엇인가요?</label>
+              <textarea id="movie-wish" name="movie_wish" placeholder="개봉작, 미개봉작 모두 좋아요."></textarea>
+            </div>
+          </div>
+        </section>
+
+        <div class="topic-transition">장면에 머문 감정은, 때로 한 곡의 음악으로 이어집니다</div>
+
+        <header class="topic-divider">
+          <span class="topic-number">04 · MUSIC</span>
+          <h2>노래로 보는 순간의 니즈</h2>
+          <p>상황마다 찾게 되는 음악을 통해 나에게 필요한 위로와 에너지를 발견합니다.</p>
+        </header>
+        <section class="survey-card">
+          <div class="question-list">
+            <div class="question-item">
+              <label for="music-sad">슬플 때 가장 먼저 듣는 노래는 무엇인가요?</label>
+              <textarea id="music-sad" name="music_sad" placeholder="노래 제목과 그 곡을 찾는 이유를 적어주세요."></textarea>
+            </div>
+            <div class="question-item">
+              <label for="music-travel">여행할 때 꼭 듣는 노래는 무엇인가요?</label>
+              <textarea id="music-travel" name="music_travel" placeholder="어떤 여행 장면과 어울리는지도 알려주세요."></textarea>
+            </div>
+            <div class="question-item">
+              <label for="music-study">공부하거나 집중할 때 듣는 노래는 무엇인가요?</label>
+              <textarea id="music-study" name="music_study" placeholder="플레이리스트나 음악 장르도 좋아요."></textarea>
+            </div>
+          </div>
+        </section>
+
+        <div class="topic-transition">감정을 채우는 음악에서, 일상을 움직이는 도구로</div>
+
+        <header class="topic-divider">
+          <span class="topic-number">05 · APP</span>
+          <h2>앱으로 보는 일상의 방식</h2>
+          <p>매일 손이 가는 앱에는 나의 습관과 필요, 중요하게 여기는 가치가 담겨 있습니다.</p>
+        </header>
+        <section class="survey-card">
+          <div class="question-list">
+            <div class="question-item">
+              <label for="app-favorite">가장 좋아하는 앱은 무엇인가요?</label>
+              <textarea id="app-favorite" name="app_favorite" placeholder="좋아하는 이유도 함께 적어주세요."></textarea>
+            </div>
+            <div class="question-item">
+              <label for="app-daily">매일 사용하는 앱은 무엇인가요?</label>
+              <textarea id="app-daily" name="app_daily" placeholder="언제, 어떤 목적으로 사용하는지 적어주세요."></textarea>
+            </div>
+            <div class="question-item">
+              <label for="app-night">자기 전에 마지막으로 사용하는 앱은 무엇인가요?</label>
+              <textarea id="app-night" name="app_night" placeholder="잠들기 전의 사용 습관을 알려주세요."></textarea>
+            </div>
+            <div class="question-item">
+              <label for="app-recommend">다른 사람에게 추천하고 싶은 앱은 무엇인가요?</label>
+              <textarea id="app-recommend" name="app_recommend" placeholder="누구에게, 왜 추천하고 싶은지 적어주세요."></textarea>
+            </div>
+            <div class="question-item">
+              <label for="app-essential">없으면 가장 불편할 것 같은 앱은 무엇인가요?</label>
+              <textarea id="app-essential" name="app_essential" placeholder="내 일상에서 어떤 역할을 하는지 적어주세요."></textarea>
+            </div>
+          </div>
+        </section>
+        -->
+
+        <div class="btn-row">
+          <button class="nav-btn secondary" id="prevBtn" type="button" hidden>이전</button>
+          <button class="nav-btn" id="nextBtn" type="button">다음 질문</button>
+          <button class="submit-btn" id="submitBtn" type="submit" hidden>응답 완료하기</button>
+        </div>
+      </form>
+
+      <p class="footer-note">지금의 니즈 · 상황 속 선택 · 변하지 않는 취향을 모아 나에게 맞는 음식을 이해합니다.</p>
+    </div>
+    <script>
+      const form = document.querySelector(".survey-list");
+      const steps = [...form.querySelectorAll(".survey-card")];
+      const prevButton = document.querySelector("#prevBtn");
+      const nextButton = document.querySelector("#nextBtn");
+      const submitButton = document.querySelector("#submitBtn");
+      const progressBar = document.querySelector("#progressBar");
+      const progressLabel = document.querySelector("#progressLabel");
+      const progressPercent = document.querySelector("#progressPercent");
+      let currentStep = 0;
+
+      function showStep(index) {
+        currentStep = index;
+        steps.forEach((step, stepIndex) => {
+          step.classList.toggle("is-active", stepIndex === currentStep);
+        });
+
+        const percent = Math.round(((currentStep + 1) / steps.length) * 100);
+        progressBar.style.width = `${percent}%`;
+        progressLabel.textContent = `질문 ${currentStep + 1} / ${steps.length}`;
+        progressPercent.textContent = `${percent}%`;
+        prevButton.hidden = currentStep === 0;
+        nextButton.hidden = currentStep === steps.length - 1;
+        submitButton.hidden = currentStep !== steps.length - 1;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      nextButton.addEventListener("click", () => {
+        if (currentStep < steps.length - 1) showStep(currentStep + 1);
+      });
+
+      prevButton.addEventListener("click", () => {
+        if (currentStep > 0) showStep(currentStep - 1);
+      });
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        submitButton.textContent = "응답이 완료되었습니다";
+        submitButton.disabled = true;
+      });
+    </script>
+  </body>
+</html>
