@@ -21,13 +21,15 @@
 
       body {
         margin: 0;
+        min-height: 100dvh;
         font-family: "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
         background: linear-gradient(135deg, var(--bg), #fff3e4);
         color: var(--text);
+        overflow-x: hidden;
       }
 
       .wrap {
-        max-width: 1080px;
+        width: min(100%, 1080px);
         margin: 0 auto;
         padding: 32px 20px 64px;
       }
@@ -201,6 +203,8 @@
         display: flex;
         flex-direction: column;
         gap: 6px;
+        padding: 10px;
+        border: 1px solid transparent;
         border-radius: 14px;
         min-height: 110px;
       }
@@ -220,6 +224,7 @@
       }
 
       .input-area {
+        position: relative;
         margin-top: 14px;
       }
 
@@ -228,7 +233,7 @@
         min-height: 92px;
         border: 1px solid var(--border);
         border-radius: 14px;
-        padding: 12px 14px;
+        padding: 12px 52px 12px 14px;
         font-size: 14px;
         resize: vertical;
         outline: none;
@@ -237,6 +242,36 @@
       textarea:focus {
         border-color: var(--accent);
         box-shadow: 0 0 0 3px rgba(255,122,89,0.12);
+      }
+
+      .text-send-btn {
+        position: absolute;
+        right: 9px;
+        bottom: 12px;
+        display: grid;
+        place-items: center;
+        width: 36px;
+        height: 36px;
+        border: 0;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        color: white;
+        font-size: 18px;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 5px 12px rgba(255,122,89,.25);
+        transition: transform .18s ease, opacity .18s ease;
+      }
+
+      .text-send-btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .text-send-btn:disabled {
+        cursor: default;
+        opacity: .38;
+        transform: none;
+        box-shadow: none;
       }
 
       .footer-note {
@@ -271,15 +306,95 @@
         border: 1px solid var(--border);
       }
 
-      #nextBtn,
-      #submitBtn {
-        margin-left: auto;
-      }
-
       .nav-btn[hidden],
       .submit-btn[hidden] {
         display: none;
       }
+
+      .nav-btn:disabled,
+      .submit-btn:disabled {
+        cursor: default;
+        opacity: 0.72;
+      }
+
+      .validation-message {
+        min-height: 20px;
+        margin: 12px 2px -10px;
+        color: #d94d35;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .survey-card.has-error {
+        border-color: rgba(217, 77, 53, 0.55);
+        animation: shake 0.3s ease;
+      }
+
+      @keyframes shake {
+        25% { transform: translateX(-5px); }
+        50% { transform: translateX(5px); }
+        75% { transform: translateX(-3px); }
+      }
+
+      .completion {
+        display: none;
+        position: relative;
+        overflow: hidden;
+        margin-top: 24px;
+        padding: 56px 24px;
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        background: var(--card);
+        text-align: center;
+        box-shadow: 0 14px 32px rgba(255,122,89,0.14);
+      }
+
+      .completion.is-visible {
+        display: block;
+        animation: complete-in 0.55s cubic-bezier(.2,.8,.2,1);
+      }
+
+      .completion-icon {
+        display: grid;
+        place-items: center;
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 18px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        color: white;
+        font-size: 36px;
+        animation: icon-pop 0.5s 0.1s both;
+      }
+
+      .completion h2 { margin: 0 0 10px; }
+      .completion p { margin: 0; color: var(--muted); line-height: 1.6; }
+
+      .confetti {
+        position: absolute;
+        top: -16px;
+        width: 9px;
+        height: 18px;
+        border-radius: 2px;
+        animation: confetti-fall 1.25s ease-out forwards;
+      }
+
+      @keyframes complete-in {
+        from { opacity: 0; transform: translateY(18px) scale(.98); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+
+      @keyframes icon-pop {
+        0% { transform: scale(0) rotate(-20deg); }
+        70% { transform: scale(1.12) rotate(5deg); }
+        100% { transform: scale(1) rotate(0); }
+      }
+
+      @keyframes confetti-fall {
+        to { transform: translate3d(var(--drift), 340px, 0) rotate(540deg); opacity: 0; }
+      }
+
+      .mobile-copy { display: none; }
 
       .progress-wrap {
         margin: 24px 4px 14px;
@@ -309,17 +424,87 @@
         transition: width 0.3s ease;
       }
 
+      .step-notice {
+        min-height: 22px;
+        margin: 8px 4px 0;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 700;
+        text-align: right;
+      }
+
+      .step-notice.is-changing {
+        animation: notice-in .45s ease;
+      }
+
+      @keyframes notice-in {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
       @media (max-width: 700px) {
+        .wrap {
+          padding: 14px 12px 36px;
+        }
+
         .hero {
-          padding: 24px;
+          padding: 20px;
+          border-radius: 20px;
         }
 
         .hero h1 {
-          font-size: 26px;
+          font-size: clamp(23px, 7vw, 28px);
+          word-break: keep-all;
+        }
+
+        .hero p {
+          font-size: 14px;
+          line-height: 1.5;
         }
 
         .option-grid {
           grid-template-columns: 1fr;
+          gap: 9px;
+        }
+
+        .option-card {
+          padding: 7px;
+        }
+
+        .inner {
+          min-height: auto;
+          padding: 9px;
+        }
+
+        .survey-card {
+          padding: 20px 16px;
+          border-radius: 20px;
+        }
+
+        .survey-card h2 {
+          font-size: 20px;
+          word-break: keep-all;
+        }
+
+        .survey-card .desc {
+          font-size: 14px;
+        }
+
+        .desktop-copy { display: none; }
+        .mobile-copy { display: block; }
+
+        .btn-row {
+          position: sticky;
+          bottom: 0;
+          z-index: 5;
+          margin-inline: -12px;
+          padding: 12px;
+          background: linear-gradient(transparent, rgba(255,250,244,.96) 25%);
+        }
+
+        .nav-btn,
+        .submit-btn {
+          min-height: 46px;
         }
 
         .survey-bridge {
@@ -328,16 +513,18 @@
 
       }
     </style>
+    <script defer src="https://va.vercel-scripts.com/v1/script.js"></script>
   </head>
   <body>
     <div class="wrap">
       <section class="hero">
         <div class="badge">Food Mood Survey</div>
         <h1>지금 나에게 필요한 음식은 무엇일까요?</h1>
-        <p>
+        <p class="desktop-copy">
           메뉴를 고르는 기준에는 지금의 기분, 놓인 상황, 오래된 기억이 함께 작용합니다.
           세 가지 질문을 따라가며 오늘의 니즈부터 나만의 취향까지 차근차근 발견해 보세요.
         </p>
+        <p class="mobile-copy">지금 끌리는 메뉴를 골라 내 취향을 확인해 보세요.</p>
       </section>
 
       <form class="survey-list">
@@ -349,6 +536,7 @@
           <div class="progress-track">
             <div class="progress-bar" id="progressBar"></div>
           </div>
+          <p class="step-notice" id="stepNotice" aria-live="polite">첫 번째 질문이에요. 편하게 골라주세요.</p>
         </div>
 
         <section class="survey-card is-active">
@@ -391,7 +579,9 @@
           </div>
           <div class="input-area">
             <textarea placeholder="한 줄로 이유를 적어보세요. 예: 비 오는 날엔 더 생각나네요."></textarea>
+            <button class="text-send-btn" type="button" aria-label="답변 전송" disabled>↑</button>
           </div>
+          <p class="validation-message" aria-live="polite"></p>
         </section>
 
         <div class="survey-bridge" aria-hidden="true">
@@ -439,7 +629,9 @@
           </div>
           <div class="input-area">
             <textarea placeholder="비 오는 날의 음식 경험을 짧게 적어주세요."></textarea>
+            <button class="text-send-btn" type="button" aria-label="답변 전송" disabled>↑</button>
           </div>
+          <p class="validation-message" aria-live="polite"></p>
         </section>
 
         <div class="survey-bridge" aria-hidden="true">
@@ -487,7 +679,9 @@
           </div>
           <div class="input-area">
             <textarea placeholder="당신의 소울 푸드와 이유를 적어주세요."></textarea>
+            <button class="text-send-btn" type="button" aria-label="답변 전송" disabled>↑</button>
           </div>
+          <p class="validation-message" aria-live="polite"></p>
         </section>
 
         <!--
@@ -598,10 +792,14 @@
 
         <div class="btn-row">
           <button class="nav-btn secondary" id="prevBtn" type="button" hidden>이전</button>
-          <button class="nav-btn" id="nextBtn" type="button">다음 질문</button>
-          <button class="submit-btn" id="submitBtn" type="submit" hidden>응답 완료하기</button>
         </div>
       </form>
+
+      <section class="completion" id="completion" role="status" aria-live="polite">
+        <div class="completion-icon">✓</div>
+        <h2>응답이 제출되었어요!</h2>
+        <p>나만의 음식 취향을 들려주셔서 감사합니다.</p>
+      </section>
 
       <p class="footer-note">지금의 니즈 · 상황 속 선택 · 변하지 않는 취향을 모아 나에게 맞는 음식을 이해합니다.</p>
     </div>
@@ -609,12 +807,36 @@
       const form = document.querySelector(".survey-list");
       const steps = [...form.querySelectorAll(".survey-card")];
       const prevButton = document.querySelector("#prevBtn");
-      const nextButton = document.querySelector("#nextBtn");
-      const submitButton = document.querySelector("#submitBtn");
       const progressBar = document.querySelector("#progressBar");
       const progressLabel = document.querySelector("#progressLabel");
       const progressPercent = document.querySelector("#progressPercent");
+      const stepNotice = document.querySelector("#stepNotice");
+      const completion = document.querySelector("#completion");
       let currentStep = 0;
+
+      const stepMessages = [
+        "첫 번째 질문이에요. 이후 2개가 남아 있어요.",
+        "좋아요! 이 질문을 마치면 1개만 남아요.",
+        "마지막 질문이에요. 답하면 바로 제출돼요!"
+      ];
+
+      function hasResponse(step) {
+        const selectedOption = step.querySelector('input[type="radio"]:checked');
+        const writtenAnswer = step.querySelector("textarea")?.value.trim();
+        return Boolean(selectedOption || writtenAnswer);
+      }
+
+      function validateStep(step) {
+        const message = step.querySelector(".validation-message");
+        const isValid = hasResponse(step);
+        step.classList.toggle("has-error", !isValid);
+        message.textContent = isValid ? "" : "메뉴를 선택하거나 답변을 입력해 주세요.";
+        if (!isValid) {
+          window.setTimeout(() => step.classList.remove("has-error"), 350);
+          step.querySelector(".option-card input")?.focus();
+        }
+        return isValid;
+      }
 
       function showStep(index) {
         currentStep = index;
@@ -626,24 +848,71 @@
         progressBar.style.width = `${percent}%`;
         progressLabel.textContent = `질문 ${currentStep + 1} / ${steps.length}`;
         progressPercent.textContent = `${percent}%`;
+        stepNotice.textContent = stepMessages[currentStep];
+        stepNotice.classList.remove("is-changing");
+        void stepNotice.offsetWidth;
+        stepNotice.classList.add("is-changing");
         prevButton.hidden = currentStep === 0;
-        nextButton.hidden = currentStep === steps.length - 1;
-        submitButton.hidden = currentStep !== steps.length - 1;
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
-
-      nextButton.addEventListener("click", () => {
-        if (currentStep < steps.length - 1) showStep(currentStep + 1);
-      });
 
       prevButton.addEventListener("click", () => {
         if (currentStep > 0) showStep(currentStep - 1);
       });
 
-      form.addEventListener("submit", (event) => {
-        event.preventDefault();
-        submitButton.textContent = "응답이 완료되었습니다";
-        submitButton.disabled = true;
+      function completeSurvey() {
+        form.hidden = true;
+        document.querySelector(".footer-note").hidden = true;
+        completion.classList.add("is-visible");
+
+        const colors = ["#ff7a59", "#ffb347", "#ffd166"];
+        for (let index = 0; index < 10; index += 1) {
+          const piece = document.createElement("span");
+          piece.className = "confetti";
+          piece.style.left = `${Math.random() * 100}%`;
+          piece.style.background = colors[index % colors.length];
+          piece.style.setProperty("--drift", `${Math.random() * 120 - 60}px`);
+          piece.style.animationDelay = `${Math.random() * 0.35}s`;
+          completion.appendChild(piece);
+          piece.addEventListener("animationend", () => piece.remove());
+        }
+        completion.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+
+      function advanceFrom(step) {
+        if (!validateStep(step)) return;
+        if (currentStep === steps.length - 1) {
+          completeSurvey();
+        } else {
+          showStep(currentStep + 1);
+        }
+      }
+
+      steps.forEach((step) => {
+        const textarea = step.querySelector("textarea");
+        const sendButton = step.querySelector(".text-send-btn");
+
+        step.querySelectorAll('input[type="radio"]').forEach((option) => {
+          option.addEventListener("change", () => {
+            window.setTimeout(() => advanceFrom(step), 180);
+          });
+        });
+
+        sendButton.addEventListener("click", () => advanceFrom(step));
+
+        textarea.addEventListener("keydown", (event) => {
+          if ((event.metaKey || event.ctrlKey) && event.key === "Enter" && textarea.value.trim()) {
+            advanceFrom(step);
+          }
+        });
+
+        step.addEventListener("input", () => {
+          if (hasResponse(step)) {
+            step.querySelector(".validation-message").textContent = "";
+            step.classList.remove("has-error");
+          }
+          sendButton.disabled = !textarea.value.trim();
+        });
       });
     </script>
   </body>
