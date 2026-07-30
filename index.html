@@ -514,6 +514,7 @@
       }
     </style>
     <script defer src="https://va.vercel-scripts.com/v1/script.js"></script>
+    <script defer src="./tracker.js"></script>
   </head>
   <body>
     <div class="wrap">
@@ -578,7 +579,7 @@
             </label>
           </div>
           <div class="input-area">
-            <textarea placeholder="한 줄로 이유를 적어보세요. 예: 비 오는 날엔 더 생각나네요."></textarea>
+            <textarea name="mood_detail" placeholder="한 줄로 이유를 적어보세요. 예: 비 오는 날엔 더 생각나네요."></textarea>
             <button class="text-send-btn" type="button" aria-label="답변 전송" disabled>↑</button>
           </div>
           <p class="validation-message" aria-live="polite"></p>
@@ -628,7 +629,7 @@
             </label>
           </div>
           <div class="input-area">
-            <textarea placeholder="비 오는 날의 음식 경험을 짧게 적어주세요."></textarea>
+            <textarea name="rain_detail" placeholder="비 오는 날의 음식 경험을 짧게 적어주세요."></textarea>
             <button class="text-send-btn" type="button" aria-label="답변 전송" disabled>↑</button>
           </div>
           <p class="validation-message" aria-live="polite"></p>
@@ -678,7 +679,7 @@
             </label>
           </div>
           <div class="input-area">
-            <textarea placeholder="당신의 소울 푸드와 이유를 적어주세요."></textarea>
+            <textarea name="soul_detail" placeholder="당신의 소울 푸드와 이유를 적어주세요."></textarea>
             <button class="text-send-btn" type="button" aria-label="답변 전송" disabled>↑</button>
           </div>
           <p class="validation-message" aria-live="polite"></p>
@@ -861,6 +862,10 @@
       });
 
       function completeSurvey() {
+        form.dispatchEvent(new CustomEvent("survey:submitted", {
+          bubbles: true,
+          detail: { completedSteps: steps.length }
+        }));
         form.hidden = true;
         document.querySelector(".footer-note").hidden = true;
         completion.classList.add("is-visible");
@@ -915,5 +920,6 @@
         });
       });
     </script>
+    <script src="/tracker.js" defer></script>
   </body>
 </html>
